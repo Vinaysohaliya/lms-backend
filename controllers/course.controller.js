@@ -47,14 +47,14 @@ export const createCourse = asyncHandler(async (req, res, next) => {
       new AppError('Course could not be created, please try again', 400)
     );
   }
-
   // Run only if user sends a file
+  console.log(req.file);
   if (req.file) {
     try {
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
         folder: 'lms', // Save files in a folder named lms
       });
-
+    console.log(result);
       // If success
       if (result) {
         // Set the public_id and secure_url in array
@@ -63,12 +63,10 @@ export const createCourse = asyncHandler(async (req, res, next) => {
       }
 
       // After successful upload remove the file from local storage
-      fs.rm(`uploads/${req.file.filename}`);
+      fs.rm(`upload/${req.file.filename}`);
     } catch (error) {
       // Empty the uploads directory without deleting the uploads directory
-      for (const file of await fs.readdir('uploads/')) {
-        await fs.unlink(path.join('uploads/', file));
-      }
+      
 
       // Send the error message
       return next(
@@ -149,12 +147,12 @@ export const addLectureToCourseById = asyncHandler(async (req, res, next) => {
       }
 
       // After successful upload remove the file from local storage
-      fs.rm(`uploads/${req.file.filename}`);
+      fs.rm(`upload/${req.file.filename}`);
     } catch (error) {
       // Empty the uploads directory without deleting the uploads directory
-      for (const file of await fs.readdir('uploads/')) {
-        await fs.unlink(path.join('uploads/', file));
-      }
+      // for (const file of await fs.readdir('uploads/')) {
+      //   await fs.unlink(path.join('uploads/', file));
+      // }
 
       // Send the error message
       return next(
@@ -286,17 +284,16 @@ export const updateCourseById = asyncHandler(async (req, res, next) => {
 export const deleteCourseById = asyncHandler(async (req, res, next) => {
   // Extracting id from the request parameters
   const { id } = req.params;
-
   // Finding the course via the course ID
   const course = await Course.findById(id);
-
   // If course not find send the message as stated below
   if (!course) {
     return next(new AppError('Course with given id does not exist.', 404));
   }
 
   // Remove course
-  await course.remove();
+  await course.deleteOne();
+  
 
   // Send the message as response
   res.status(200).json({

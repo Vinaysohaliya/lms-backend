@@ -9,7 +9,7 @@ import User from '../models/user.model.js';
 import sendEmail from '../utils/sendEmail.js';
 
 const cookieOptions = {
-  secure: process.env.NODE_ENV === 'production' ? true : false,
+  secure: 'dev' === 'production' ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   httpOnly: true,
 };
@@ -54,9 +54,11 @@ export const registerUser = asyncHandler(async (req, res, next) => {
       new AppError('User registration failed, please try again later', 400)
     );
   }
-
+console.log(req.file);
   // Run only if user sends a file
   if (req.file) {
+    console.log("start");
+
     try {
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
         folder: 'lms', // Save files in a folder named lms
@@ -65,15 +67,16 @@ export const registerUser = asyncHandler(async (req, res, next) => {
         gravity: 'faces', // This option tells cloudinary to center the image around detected faces (if any) after cropping or resizing the original image
         crop: 'fill',
       });
-
       // If success
+    console.log("end");
+
       if (result) {
         // Set the public_id and secure_url in DB
         user.avatar.public_id = result.public_id;
         user.avatar.secure_url = result.secure_url;
 
         // After successful upload remove the file from local storage
-        fs.rm(`uploads/${req.file.filename}`);
+        fs.rm(`upload/${req.file.filename}`);
       }
     } catch (error) {
       return next(
@@ -95,7 +98,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
   res.cookie('token', token, cookieOptions);
 
   // If all good send the response to the frontend
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: 'User registered successfully',
     user,
@@ -109,6 +112,8 @@ export const registerUser = asyncHandler(async (req, res, next) => {
  */
 export const loginUser = asyncHandler(async (req, res, next) => {
   // Destructuring the necessary data from req object
+  console.log("jjjjjjjjjjjjjjjjjjjj");
+  console.log(req);
   const { email, password } = req.body;
 
   // Check if the data is there or not, if not throw error message
@@ -135,6 +140,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   // Setting the token in the cookie with name token along with cookieOptions
   res.cookie('token', token, cookieOptions);
 
+  console.log("login");
   // If all good send the response to the frontend
   res.status(200).json({
     success: true,
@@ -150,6 +156,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
  */
 export const logoutUser = asyncHandler(async (_req, res, _next) => {
   // Setting the cookie value to null
+  console.log("logout");
   res.cookie('token', null, {
     secure: process.env.NODE_ENV === 'production' ? true : false,
     maxAge: 0,
@@ -358,9 +365,10 @@ export const updateUser = asyncHandler(async (req, res, next) => {
   // Destructuring the necessary data from the req object
   const { fullName } = req.body;
   const { id } = req.params;
+  console.log(fullName+id);
 
   const user = await User.findById(id);
-
+  console.log("ok1");
   if (!user) {
     return next(new AppError('Invalid user id or user does not exist'));
   }
@@ -390,7 +398,7 @@ export const updateUser = asyncHandler(async (req, res, next) => {
         user.avatar.secure_url = result.secure_url;
 
         // After successful upload remove the file from local storage
-        fs.rm(`uploads/${req.file.filename}`);
+        fs.rm(`upload/${req.file.filename}`);
       }
     } catch (error) {
       return next(

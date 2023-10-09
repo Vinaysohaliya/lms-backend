@@ -14,7 +14,7 @@ import Payment from '../models/Payment.model.js';
 export const buySubscription = asyncHandler(async (req, res, next) => {
   // Extracting ID from request obj
   const { id } = req.user;
-
+console.log(id );
   // Finding the user based on the ID
   const user = await User.findById(id);
 
@@ -29,7 +29,7 @@ export const buySubscription = asyncHandler(async (req, res, next) => {
 
   // Creating a subscription using razorpay that we imported from the server
   const subscription = await razorpay.subscriptions.create({
-    plan_id: process.env.RAZORPAY_PLAN_ID, // The unique plan ID
+    plan_id: 'plan_Mm3Gz7QXD56E7a', // The unique plan ID
     customer_notify: 1, // 1 means razorpay will handle notifying the customer, 0 means we will not notify the customer
     total_count: 12, // 12 means it will charge every month for a 1-year sub.
   });
@@ -58,7 +58,7 @@ export const verifySubscription = asyncHandler(async (req, res, next) => {
   const { id } = req.user;
   const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } =
     req.body;
-
+console.log(id);
   // Finding the user
   const user = await User.findById(id);
 
@@ -70,10 +70,12 @@ export const verifySubscription = asyncHandler(async (req, res, next) => {
   // razorpay_payment_id is from the frontend and there should be a '|' character between this and subscriptionId
   // At the end convert it to Hex value
   const generatedSignature = crypto
-    .createHmac('sha256', process.env.RAZORPAY_SECRET)
+    .createHmac('sha256', 'vSi9Q006AOSj5iJQPDlbCQ8O')
     .update(`${razorpay_payment_id}|${subscriptionId}`)
     .digest('hex');
 
+    console.log(generatedSignature);
+    console.log(razorpay_signature);
   // Check if generated signature and signature received from the frontend is the same or not
   if (generatedSignature !== razorpay_signature) {
     return next(new AppError('Payment not verified, please try again.', 400));
@@ -183,7 +185,7 @@ export const getRazorpayApiKey = asyncHandler(async (_req, res, _next) => {
   res.status(200).json({
     success: true,
     message: 'Razorpay API key',
-    key: process.env.RAZORPAY_KEY_ID,
+    key:'rzp_test_fp6UeZUHAAMied',
   });
 });
 

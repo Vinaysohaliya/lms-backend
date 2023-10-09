@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const userSchema = new Schema(
@@ -72,9 +72,9 @@ userSchema.methods = {
   generateJWTToken: async function () {
     return await jwt.sign(
       { id: this._id, role: this.role, subscription: this.subscription },
-      process.env.JWT_SECRET,
+        "no",
       {
-        expiresIn: process.env.JWT_EXPIRY,
+        expiresIn:"24h",
       }
     );
   },
