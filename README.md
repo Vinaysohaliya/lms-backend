@@ -23,3 +23,21 @@ https://github.com/Vinaysohaliya/lms-frontend.git
 - [nodemailer](https://www.npmjs.com/package/nodemailer): Module for sending emails.
 - [razorpay](https://www.npmjs.com/package/razorpay): Node.js SDK for the Razorpay payment gateway.
 
+
+## Setup instruction
+
+1.Clone the project
+
+    https://github.com/Vinaysohaliya/lms-backend.git
+
+2.Move into the directory
+
+    cd lms-backend
+
+3.run the server
+
+    npm start
+
+
+   
+   
